@@ -59,6 +59,7 @@ flutter:
     - assets/pina_colada.jpg
     - assets/martini.jpg
     - assets/cosmopolitan.jpg
+    - assets/daiquiri.jpg
     - assets/Logo/LOGO.svg
   fonts:
     - family: Montserrat

@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'cocktail.dart';
 import 'cocktail_card.dart';
-import 'cocktail_detail.dart';
 
 class CocktailHomePage extends StatefulWidget {
   @override
@@ -14,6 +13,7 @@ class CocktailHomePage extends StatefulWidget {
 class _CocktailHomePageState extends State<CocktailHomePage> {
   final String apiUrl = 'https://cocktails.solvro.pl/api/v1/cocktails';
   late Future<List<Cocktail>> futureCocktails;
+  List<Cocktail> favoriteCocktails = [];
 
   @override
   void initState() {
@@ -29,17 +29,7 @@ class _CocktailHomePageState extends State<CocktailHomePage> {
       List<dynamic> data = jsonDecode(response.body)['data'];
 
       data.forEach((cocktailJson) {
-        Cocktail cocktail = Cocktail(
-          id: cocktailJson['id'],
-          name: cocktailJson['name'],
-          instructions: cocktailJson['instructions'],
-          alcoholic: cocktailJson['alcoholic'],
-          category: cocktailJson['category'],
-          glass: cocktailJson['glass'],
-          imageUrl: cocktailJson['imageUrl'],
-          createdAt: cocktailJson['createdAt'],
-          updatedAt: cocktailJson['updatedAt'],
-        );
+        Cocktail cocktail = Cocktail.fromJson(cocktailJson);
         cocktails.add(cocktail);
       });
 
@@ -47,6 +37,18 @@ class _CocktailHomePageState extends State<CocktailHomePage> {
     } else {
       throw Exception('Failed to load cocktails');
     }
+  }
+
+  void _toggleFavorite(Cocktail cocktail) {
+    setState(() {
+      cocktail.isFavorite = !cocktail.isFavorite;
+
+      if (cocktail.isFavorite) {
+        favoriteCocktails.add(cocktail);
+      } else {
+        favoriteCocktails.remove(cocktail);
+      }
+    });
   }
 
   @override
@@ -72,9 +74,19 @@ class _CocktailHomePageState extends State<CocktailHomePage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.favorite_border),
+            icon: const Icon(Icons.favorite),
             iconSize: 26,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteCocktailsPage(
+                    favoriteCocktails: favoriteCocktails,
+                    onFavoriteToggle: _toggleFavorite, 
+                  ),
+                ),
+              );
+            },
           ),
           TextButton(
             onPressed: () {},
@@ -100,23 +112,58 @@ class _CocktailHomePageState extends State<CocktailHomePage> {
           } else {
             List<Cocktail> cocktails = snapshot.data!;
             return GridView.builder(
-              padding: EdgeInsets.zero, // No padding around the grid
+              padding: EdgeInsets.zero,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Number of columns
-                crossAxisSpacing: 0, // No spacing between columns
-                mainAxisSpacing: 0, // No spacing between rows
-                childAspectRatio: 0.75, // Adjust this value to fit your design
+                crossAxisCount: 2,
+                crossAxisSpacing: 0,
+                mainAxisSpacing: 0,
+                childAspectRatio: 0.75,
               ),
               itemCount: cocktails.length,
               itemBuilder: (context, index) {
                 return CocktailCard(
-                    cocktail: cocktails[
-                        index]); 
+                  cocktail: cocktails[index],
+                  onFavoriteToggle: () => _toggleFavorite(cocktails[index]),
+                );
               },
             );
           }
         },
       ),
+    );
+  }
+}
+
+class FavoriteCocktailsPage extends StatelessWidget {
+  final List<Cocktail> favoriteCocktails;
+  final Function(Cocktail) onFavoriteToggle;
+
+  FavoriteCocktailsPage({required this.favoriteCocktails, required this.onFavoriteToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Ulubione Drinki'),
+      ),
+      body: favoriteCocktails.isEmpty
+          ? Center(child: Text('Brak ulubionych drinków'))
+          : GridView.builder(
+              padding: EdgeInsets.zero,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 0,
+                mainAxisSpacing: 0,
+                childAspectRatio: 0.75,
+              ),
+              itemCount: favoriteCocktails.length,
+              itemBuilder: (context, index) {
+                return CocktailCard(
+                  cocktail: favoriteCocktails[index],
+                  onFavoriteToggle: () => onFavoriteToggle(favoriteCocktails[index]), 
+                );
+              },
+            ),
     );
   }
 }

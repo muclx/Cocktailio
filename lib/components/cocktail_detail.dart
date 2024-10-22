@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; 
+import 'dart:ui';
 import 'cocktail.dart';
 
 class CocktailDetailPage extends StatefulWidget {
   final Cocktail cocktail;
+  final VoidCallback onFavoriteToggle; // Dodaj funkcję jako argument
 
-  CocktailDetailPage({required this.cocktail});
+  CocktailDetailPage({
+    required this.cocktail,
+    required this.onFavoriteToggle, // Przekazanie funkcji do szczegółów
+  });
 
   @override
   _CocktailDetailPageState createState() => _CocktailDetailPageState();
@@ -17,12 +21,16 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
   @override
   void initState() {
     super.initState();
-    isFavorite = widget.cocktail.isFavorite; 
+    isFavorite =
+        widget.cocktail.isFavorite; 
   }
 
   void _toggleFavorite() {
     setState(() {
-      isFavorite = !isFavorite; 
+      isFavorite = !isFavorite;
+      widget.cocktail.isFavorite = isFavorite;
+      widget
+          .onFavoriteToggle(); 
     });
   }
 
@@ -36,7 +44,7 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
         children: [
           Container(
             width: double.infinity,
-            height: 520, 
+            height: 520,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(widget.cocktail.imageUrl),
@@ -44,13 +52,11 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
               ),
             ),
           ),
-
           Container(
             width: double.infinity,
-            height: 520, 
+            height: 520,
             decoration: BoxDecoration(
-              color:
-                  Colors.black.withOpacity(0.3),
+              color: Colors.black.withOpacity(0.3),
             ),
           ),
           Positioned(
@@ -60,24 +66,23 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
               icon: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: isFavorite ? Colors.red : Colors.white,
-                size: 50.0, 
+                size: 50.0,
               ),
-              onPressed: _toggleFavorite, 
+              onPressed:
+                  _toggleFavorite, 
             ),
           ),
           DraggableScrollableSheet(
-            minChildSize: 0.4, 
-            maxChildSize: 0.5, 
+            minChildSize: 0.4,
+            maxChildSize: 0.5,
             builder: (BuildContext context, ScrollController scrollController) {
               return ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(
-                      sigmaX: 60.0, sigmaY: 60.0), 
+                  filter: ImageFilter.blur(sigmaX: 60.0, sigmaY: 60.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white
-                          .withOpacity(0.8),
+                      color: Colors.white.withOpacity(0.8),
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(20.0)),
                       boxShadow: [
@@ -99,7 +104,7 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
                           child: Container(
                             height: 5,
                             width: 40,
-                            margin: EdgeInsets.only(top: 10), 
+                            margin: EdgeInsets.only(top: 10),
                             decoration: BoxDecoration(
                               color: Colors.grey.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(10),
@@ -115,7 +120,7 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${widget.cocktail.category}', // Display cocktail category
+                                    '${widget.cocktail.category}', // Wyświetlanie kategorii drinka
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: const Color.fromARGB(
@@ -123,7 +128,7 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
                                     ),
                                   ),
                                   Text(
-                                    '"${widget.cocktail.name}"', 
+                                    '"${widget.cocktail.name}"',
                                     style: TextStyle(
                                       fontSize: 26,
                                       fontWeight: FontWeight.bold,
@@ -131,7 +136,7 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
                                   ),
                                   SizedBox(height: 15),
                                   Text(
-                                    'Instructions:', 
+                                    'Instructions:',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -139,8 +144,7 @@ class _CocktailDetailPageState extends State<CocktailDetailPage> {
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    widget.cocktail
-                                        .instructions,
+                                    widget.cocktail.instructions,
                                     style: TextStyle(fontSize: 16),
                                   ),
                                 ],

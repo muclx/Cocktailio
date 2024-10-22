@@ -2,38 +2,35 @@ import 'package:flutter/material.dart';
 import 'cocktail.dart';
 import 'cocktail_detail.dart';
 
-class CocktailCard extends StatefulWidget {
+class CocktailCard extends StatelessWidget {
   final Cocktail cocktail;
+  final VoidCallback onFavoriteToggle;
 
-  const CocktailCard({Key? key, required this.cocktail}) : super(key: key);
-
-  @override
-  _CocktailCardState createState() => _CocktailCardState();
-}
-
-class _CocktailCardState extends State<CocktailCard> {
-  late bool isFavorite;
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorite = false; 
-  }
+  const CocktailCard({
+    Key? key,
+    required this.cocktail,
+    required this.onFavoriteToggle,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CocktailDetailPage(cocktail: widget.cocktail),
+            builder: (context) => CocktailDetailPage(
+              cocktail: cocktail,
+              onFavoriteToggle:
+                  onFavoriteToggle, 
+            ),
           ),
         );
       },
       child: Card(
-        elevation: 0, 
-        margin: EdgeInsets.zero, 
+        elevation: 0,
+        margin: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
           side: BorderSide(
@@ -46,12 +43,11 @@ class _CocktailCardState extends State<CocktailCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                
                 ClipRRect(
                   borderRadius: BorderRadius.zero,
                   child: Image.network(
-                    widget.cocktail.imageUrl,
-                    height: 220, 
+                    cocktail.imageUrl,
+                    height: 220,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -61,7 +57,7 @@ class _CocktailCardState extends State<CocktailCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.cocktail.category,
+                        cocktail.category,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -69,7 +65,7 @@ class _CocktailCardState extends State<CocktailCard> {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        widget.cocktail.name,
+                        cocktail.name,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -85,15 +81,11 @@ class _CocktailCardState extends State<CocktailCard> {
               right: 10,
               child: IconButton(
                 icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : Colors.white,
+                  cocktail.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: cocktail.isFavorite ? Colors.red : Colors.white,
                 ),
-                iconSize: 30,
-                onPressed: () {
-                  setState(() {
-                    isFavorite = !isFavorite; 
-                  });
-                },
+                onPressed:
+                    onFavoriteToggle, 
               ),
             ),
           ],

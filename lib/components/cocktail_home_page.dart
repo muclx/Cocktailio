@@ -1,123 +1,53 @@
-// cocktail_home_page.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'cocktail.dart';
 import 'cocktail_card.dart';
+import 'cocktail_detail.dart';
 
-class CocktailHomePage extends StatelessWidget {
-  final List<Cocktail> cocktails = [
-    Cocktail(
-      name: '"SEX ON THE BEACH"',
-      image: 'assets/sex_on_the_beach.jpg',
-      isFavorite: true,
-      description: 'Napój alkoholowy',
-      longDescription:
-          'Sex on the Beach to owocowy, słodki koktajl na bazie wódki, likieru brzoskwiniowego, soku pomarańczowego i żurawinowego. Orzeźwiający i idealny na letnie wieczory, z przyjemnym połączeniem cytrusowych i słodkich nut.',
-      ingredients: [
-        '40 ml wódki',
-        '20 ml likieru brzoskwiniowego (Peach Schnapps)',
-        '40 ml soku pomarańczowego',
-        '40 ml soku żurawinowego',
-        'Kostki lodu',
-      ],
-      preparation: [
-        'W shakerze z lodem wymieszaj wódkę, likier brzoskwiniowy, sok pomarańczowy i sok żurawinowy.',
-        'Wstrząśnij energicznie, aby wszystkie składniki dobrze się połączyły.',
-        'Przelej koktajl do wysokiej szklanki z lodem.',
-        'Udekoruj plasterkiem pomarańczy lub wisienką koktajlową',
-      ],
-    ),
-    Cocktail(
-      name: '"MOJITO"',
-      image: 'assets/mojito.jpg',
-      isFavorite: false,
-      description: 'Napój alkoholowy',
-      longDescription:
-          'Mojito to orzeźwiający, karaibski koktajl na bazie rumu. Składa się z białego rumu, świeżej mięty, limonki, cukru trzcinowego oraz wody gazowanej. Jest to lekki, świeży drink idealny na gorące dni, podawany z lodem.',
-      ingredients: [
-        '50 ml białego rumu',
-        '6-8 liści mięty',
-        '2 łyżeczki cukru trzcinowego',
-        '25 ml soku z limonki',
-        'Woda gazowana',
-        'Kostki lodu'
-      ],
-      preparation: [
-        'W szklance typu highball umieść liście mięty, cukier i sok z limonki.',
-        'Delikatnie ugnieć, aby wydobyć aromat mięty.',
-        'Dodaj lód, rum i wodę gazowaną.',
-        'Całość wymieszaj łyżką barmańską.',
-        'Udekoruj miętą i plasterkiem limonki.',
-      ],
-    ),
-    Cocktail(
-      name: '"PINA COLADA"',
-      image: 'assets/pina_colada.jpg',
-      isFavorite: false,
-      description: 'Napój alkoholowy',
-      longDescription:
-          'Tropikalny koktajl na bazie rumu, mleka kokosowego i soku ananasowego, '
-          'doskonały do relaksu w słońcu.',
-      ingredients: ['Rum', 'Mleko kokosowe', 'Sok ananasowy'],
-      preparation: [
-        'W szklance typu highball umieść liście mięty, cukier i sok z limonki.',
-        'Delikatnie ugnieć, aby wydobyć aromat mięty.',
-        'Dodaj lód, rum i wodę gazowaną.',
-        'Całość wymieszaj łyżką barmańską.',
-        'Udekoruj miętą i plasterkiem limonki.',
-      ],
-    ),
-    Cocktail(
-      name: '"MARTINI"',
-      image: 'assets/martini.jpg',
-      isFavorite: false,
-      description: 'Napój alkoholowy',
-      longDescription:
-          'Elegancki koktajl łączący gin z wermutem, podawany w schłodzonym kieliszku, '
-          'idealny na każdą okazję.',
-      ingredients: ['Gin', 'Wermut'],
-      preparation: [
-        'W szklance typu highball umieść liście mięty, cukier i sok z limonki.',
-        'Delikatnie ugnieć, aby wydobyć aromat mięty.',
-        'Dodaj lód, rum i wodę gazowaną.',
-        'Całość wymieszaj łyżką barmańską.',
-        'Udekoruj miętą i plasterkiem limonki.',
-      ],
-    ),
-    Cocktail(
-      name: '"COSMOPOLITAN"',
-      image: 'assets/cosmopolitan.jpg',
-      isFavorite: false,
-      description: 'Napój alkoholowy',
-      longDescription:
-          'Stylowy koktajl o wyraźnym smaku cytrusów i delikatnej słodyczy, '
-          'doskonały na wieczorne wyjścia.',
-      ingredients: ['Wódka', 'Cointreau', 'Sok z limonki', 'Sok żurawinowy'],
-      preparation: [
-        'W szklance typu highball umieść liście mięty, cukier i sok z limonki.',
-        'Delikatnie ugnieć, aby wydobyć aromat mięty.',
-        'Dodaj lód, rum i wodę gazowaną.',
-        'Całość wymieszaj łyżką barmańską.',
-        'Udekoruj miętą i plasterkiem limonki.',
-      ],
-    ),
-    Cocktail(
-      name: '"DAIQUIRI"',
-      image: 'assets/daiquiri.jpg',
-      isFavorite: false,
-      description: 'Napój alkoholowy',
-      longDescription:
-          'Pyszny koktajl na bazie rumu, idealny na lato, łączący słodkie i kwaśne smaki.',
-      ingredients: ['Rum', 'Cukier', 'Sok z limonki'],
-      preparation: [
-        'W szklance typu highball umieść liście mięty, cukier i sok z limonki.',
-        'Delikatnie ugnieć, aby wydobyć aromat mięty.',
-        'Dodaj lód, rum i wodę gazowaną.',
-        'Całość wymieszaj łyżką barmańską.',
-        'Udekoruj miętą i plasterkiem limonki.',
-      ],
-    ),
-  ];
+class CocktailHomePage extends StatefulWidget {
+  @override
+  _CocktailHomePageState createState() => _CocktailHomePageState();
+}
+
+class _CocktailHomePageState extends State<CocktailHomePage> {
+  final String apiUrl = 'https://cocktails.solvro.pl/api/v1/cocktails';
+  late Future<List<Cocktail>> futureCocktails;
+
+  @override
+  void initState() {
+    super.initState();
+    futureCocktails = fetchCocktails();
+  }
+
+  Future<List<Cocktail>> fetchCocktails() async {
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      List<Cocktail> cocktails = [];
+      List<dynamic> data = jsonDecode(response.body)['data'];
+
+      data.forEach((cocktailJson) {
+        Cocktail cocktail = Cocktail(
+          id: cocktailJson['id'],
+          name: cocktailJson['name'],
+          instructions: cocktailJson['instructions'],
+          alcoholic: cocktailJson['alcoholic'],
+          category: cocktailJson['category'],
+          glass: cocktailJson['glass'],
+          imageUrl: cocktailJson['imageUrl'],
+          createdAt: cocktailJson['createdAt'],
+          updatedAt: cocktailJson['updatedAt'],
+        );
+        cocktails.add(cocktail);
+      });
+
+      return cocktails;
+    } else {
+      throw Exception('Failed to load cocktails');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,17 +88,33 @@ class CocktailHomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: GridView.builder(
-        padding: EdgeInsets.zero,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 0,
-          mainAxisSpacing: 0,
-          childAspectRatio: 0.7,
-        ),
-        itemCount: cocktails.length,
-        itemBuilder: (context, index) {
-          return CocktailCard(cocktail: cocktails[index]);
+      body: FutureBuilder<List<Cocktail>>(
+        future: futureCocktails,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No data available'));
+          } else {
+            List<Cocktail> cocktails = snapshot.data!;
+            return GridView.builder(
+              padding: EdgeInsets.zero, // No padding around the grid
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Number of columns
+                crossAxisSpacing: 0, // No spacing between columns
+                mainAxisSpacing: 0, // No spacing between rows
+                childAspectRatio: 0.75, // Adjust this value to fit your design
+              ),
+              itemCount: cocktails.length,
+              itemBuilder: (context, index) {
+                return CocktailCard(
+                    cocktail: cocktails[
+                        index]); 
+              },
+            );
+          }
         },
       ),
     );
